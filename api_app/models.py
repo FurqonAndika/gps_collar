@@ -24,8 +24,8 @@ class SensorDataModel(models.Model):
     zoo = models.ForeignKey(Zoo, null=True, on_delete=models.SET_NULL, related_name="sensor_data")
     time = models.DateTimeField()
     created_at = models.DateTimeField()
-    latitude = models.DecimalField(max_digits=11, decimal_places=4,null=True)  
-    longitude = models.DecimalField(max_digits=11, decimal_places=4, null=True) 
+    latitude = models.DecimalField(max_digits=16, decimal_places=11,null=True)  
+    longitude = models.DecimalField(max_digits=16, decimal_places=11, null=True) 
     temperature = models.FloatField(null=True)
     battery = models.FloatField(null=True)
     
@@ -41,3 +41,15 @@ class RawSensorDataModel(models.Model):
     class Meta:
         unique_together = ('message',"time")
         db_table = 'collar_raw_sensor_data'
+
+
+class AreaModel(models.Model):
+    longitude = models.DecimalField(max_digits=16, decimal_places=11,null=True)
+    latitude = models.DecimalField(max_digits=16, decimal_places=11,null=True)
+    radius_km = models.FloatField()
+    place_name = models.CharField(max_length=40)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('longitude',"latitude")
+        db_table = 'collar_area'

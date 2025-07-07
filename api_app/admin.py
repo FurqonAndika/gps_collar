@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import RawSensorDataModel, SensorDataModel, Zoo
+from .models import RawSensorDataModel, SensorDataModel, Zoo,AreaModel
 
 
 # @admin.register(Instancy)
@@ -15,11 +15,17 @@ class RawSensorDataAdmin(admin.ModelAdmin):
     list_display = ["topic","message","created_at"]
     search_fields = ["topic"]
 
-class ZooaAdmin(admin.ModelAdmin):
+class ZooAdmin(admin.ModelAdmin):
     model = Zoo
     list_display = ["name","instancy__balai_name","satelit_serial"]
     search_fields = ["name"]
 
+class AreaAdmin(admin.ModelAdmin):
+    model = AreaModel
+    list_display = ["place_name","longitude","latitude"]
+    search_fields = ["place_name"]
+
 admin.site.register(RawSensorDataModel,RawSensorDataAdmin)
 admin.site.register(SensorDataModel,SensorDataAdmin)
-admin.site.register(Zoo,ZooaAdmin)
+admin.site.register(Zoo,ZooAdmin)
+admin.site.register(AreaModel,AreaAdmin)
