@@ -15,9 +15,11 @@ class Zoo(models.Model):
     image = models.ImageField(null=True, blank=True, upload_to='zoo')
     instancy = models.ForeignKey(Instancy, on_delete=models.CASCADE, blank=True, null=True)
 
+    def __str__(self):
+        return self.name+"|"+self.satelit_serial
     class Meta:
         db_table = 'collar_zoo'
-
+    
 class SensorDataModel(models.Model):
     zoo = models.ForeignKey(Zoo, null=True, on_delete=models.SET_NULL, related_name="sensor_data")
     time = models.DateTimeField()
@@ -27,7 +29,15 @@ class SensorDataModel(models.Model):
     temperature = models.FloatField(null=True)
     battery = models.FloatField(null=True)
     
-
     class Meta:
         unique_together = ('zoo', 'time')
         db_table = 'collar_sensor_data'
+
+class RawSensorDataModel(models.Model):
+    time = models.DateTimeField()
+    created_at = models.DateTimeField()
+    topic = models.CharField(max_length=100)
+    message = models.CharField(max_length=255)
+    class Meta:
+        unique_together = ('message',"time")
+        db_table = 'collar_raw_sensor_data'
