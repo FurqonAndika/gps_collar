@@ -5,6 +5,7 @@ from api_app.models import RawSensorDataModel,SensorDataModel, Zoo, AreaModel
 from django.utils.timezone import now
 import uuid
 from .geofence import is_inside_geofence
+from .bot_telegram import send_message
 
 class Command(BaseCommand):
     help = 'Subscriber mqtt'
@@ -91,14 +92,17 @@ class Command(BaseCommand):
 
                     if in_geofence:
                         print(f"📍 Gajah {zoo.name} masuk ke area '{area.place_name}' (Jarak: {distance:.2f} km), titik posisi pada {lon},{lat}")
+                        pesan = f"🦣 Gajah *{zoo.name}* terdeteksi MASUK ke area *{area.place_name}*\n" \
+                                f"📍 Lokasi: {lat:.6f}, {lon:.6f}\n" \
+                                f"📏 Jarak ke pusat area: {distance:.2f} km\n" \
+                                f"🌡️ Suhu: {temperature}°C, 🔋 Baterai: {battery}%"
+                        print(pesan)
                         # 👉 Tambahkan aksi di sini: misalnya simpan log, kirim notifikasi, dll.
                     else:
                         print(f"📍 Gajah {zoo.name} di luar area '{area.place_name}' (Jarak: {distance:.2f} km), titik posisi pada {lon},{lat}")
                         
             except Exception as e:
                 print("Gagal parsing/simpan SensorDataModel:", e)
-
-
 
         # Inisialisasi MQTT client
         client = mqtt.Client()
