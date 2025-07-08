@@ -34,7 +34,7 @@ class Command(BaseCommand):
             print(f"[{topik}] {message}")
 
             # 1. Simpan ke RawSensorDataModel
-            '''
+            
             try:
                 RawSensorDataModel.objects.get_or_create(
                     message=message,
@@ -46,7 +46,7 @@ class Command(BaseCommand):
                 )
             except Exception as e:
                 print("Gagal simpan ke RawSensorDataModel:", e)
-            '''
+            
             # 2. Parsing pesan
             try:
                 parts = message.strip().split(',')
@@ -70,7 +70,7 @@ class Command(BaseCommand):
                     zoo = None  # Tetap simpan meski tanpa relasi
 
                 # Simpan ke SensorDataModel
-                '''
+                
                 SensorDataModel.objects.create(
                     zoo=zoo,
                     time=waktu,
@@ -79,7 +79,7 @@ class Command(BaseCommand):
                     longitude=lon,
                     temperature=temperature,
                     battery=battery
-                )'''
+                )
                 print("✔️ Data Sensor berhasil disimpan.")
 
                 for area in AreaModel.objects.all():
@@ -90,10 +90,10 @@ class Command(BaseCommand):
                     )
 
                     if in_geofence:
-                        print(f"📍 Gajah {zoo.name} masuk ke area '{area.place_name}' (Jarak: {distance:.2f} km)")
+                        print(f"📍 Gajah {zoo.name} masuk ke area '{area.place_name}' (Jarak: {distance:.2f} km), titik posisi pada {lon},{lat}")
                         # 👉 Tambahkan aksi di sini: misalnya simpan log, kirim notifikasi, dll.
                     else:
-                        print(f"📍 Gajah {zoo.name} di luar area '{area.place_name}' (Jarak: {distance:.2f} km)")
+                        print(f"📍 Gajah {zoo.name} di luar area '{area.place_name}' (Jarak: {distance:.2f} km), titik posisi pada {lon},{lat}")
                         
             except Exception as e:
                 print("Gagal parsing/simpan SensorDataModel:", e)
