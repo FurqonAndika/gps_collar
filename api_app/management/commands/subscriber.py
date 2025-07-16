@@ -5,7 +5,8 @@ from api_app.models import RawSensorDataModel,SensorDataModel, Zoo, AreaModel
 from django.utils.timezone import now
 import uuid
 from .geofence import is_inside_geofence
-from .bot_telegram import send_message
+from .gps_bot_telegram import send_message
+import time
 
 class Command(BaseCommand):
     help = 'Subscriber mqtt'
@@ -29,10 +30,8 @@ class Command(BaseCommand):
        # Callback ketika pesan masuk
         def on_message(client, userdata, msg):
             message = msg.payload.decode()
-            topik = msg.topic
+            topic = msg.topic
             waktu = now()
-
-            print(f"[{topik}] {message}")
 
             # 1. Simpan ke RawSensorDataModel
             
@@ -42,7 +41,7 @@ class Command(BaseCommand):
                     time=waktu,
                     defaults={
                         'created_at': waktu,
-                        'topik': topik,
+                        'topic': topic,
                     }
                 )
             except Exception as e:
@@ -72,7 +71,7 @@ class Command(BaseCommand):
 
                 # Simpan ke SensorDataModel
                 
-                SensorDataModel.objects.create(
+                data = SensorDataModel.objects.create(
                     zoo=zoo,
                     time=waktu,
                     created_at=waktu,
@@ -82,6 +81,8 @@ class Command(BaseCommand):
                     battery=battery
                 )
                 print("✔️ Data Sensor berhasil disimpan.")
+                
+                detected_areas = []
 
                 for area in AreaModel.objects.all():
                     in_geofence, distance = is_inside_geofence(
@@ -91,16 +92,31 @@ class Command(BaseCommand):
                     )
 
                     if in_geofence:
-                        print(f"📍 Gajah {zoo.name} masuk ke area '{area.place_name}' (Jarak: {distance:.2f} km), titik posisi pada {lon},{lat}")
-                        pesan = f"🦣 Gajah *{zoo.name}* terdeteksi MASUK ke area *{area.place_name}*\n" \
-                                f"📍 Lokasi: {lat:.6f}, {lon:.6f}\n" \
-                                f"📏 Jarak ke pusat area: {distance:.2f} km\n" \
-                                f"🌡️ Suhu: {temperature}°C, 🔋 Baterai: {battery}%"
-                        print(pesan)
-                        # 👉 Tambahkan aksi di sini: misalnya simpan log, kirim notifikasi, dll.
-                    else:
-                        print(f"📍 Gajah {zoo.name} di luar area '{area.place_name}' (Jarak: {distance:.2f} km), titik posisi pada {lon},{lat}")
-                        
+                        detected_areas.append({
+                            "name": area.place_name,
+                            "distance": distance
+                        })
+
+                # Hanya kirim pesan jika terdeteksi masuk minimal 1 area
+                if detected_areas:
+                    area_list = "\n".join([
+                        f"• {a['name']} (📏 {a['distance']:.2f} km)"
+                        for a in detected_areas
+                    ])
+
+                    telegram_message = (
+                        f"🦣 Gajah {zoo.name} terdeteksi MASUK ke area berikut:\n"
+                        f"{area_list}\n\n"
+                        f"📍 Lokasi: [{lon:.6f}, {lat:.6f}](https://www.google.com/maps?q={lon:.6f},{lat:.6f})\n"
+                        f"🌡️ Suhu: {temperature}°C, 🔋 Baterai: {battery}%"
+                    )
+                    print(telegram_message)
+                    start = time.time()
+                    # send_message(telegram_message)
+                    print("time is:", time.time()-start)
+                else:
+                    print(f"📍 Gajah {zoo.name} tidak berada di dalam geofence mana pun.")
+        
             except Exception as e:
                 print("Gagal parsing/simpan SensorDataModel:", e)
 
@@ -116,7 +132,7 @@ class Command(BaseCommand):
         print(f"Connecting to {mqtt_host}:{mqtt_port}...")
         client.connect(mqtt_host, mqtt_port)
 
-        # Subscribe ke topik
+        # Subscribe ke topic
         client.subscribe(mqtt_topic)
         print(f"Subscribed to topic: {mqtt_topic}")
 

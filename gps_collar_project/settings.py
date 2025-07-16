@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import environ
-
+import os
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,7 +36,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+# save file
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Application definition
 
@@ -46,8 +49,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    #app
     "api_app",
     "account_app",
+
+    # 3rd party
+    "rest_framework",
+
 ]
 
 MIDDLEWARE = [
@@ -65,7 +74,7 @@ ROOT_URLCONF = 'gps_collar_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR/'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -96,11 +105,6 @@ DATABASES = {
     'PASSWORD': env('DB_PASSWORD'),
     'HOST': env('DB_HOST'),   # Or the hostname of your PostgreSQL server
     'PORT': env('DB_PORT'),        # Default PostgreSQL port
-    'OPTIONS': {
-        # 'options': '-c timezone=Asia/Jakarta',
-        # 'timezone': 'UTC',  
-        'application_name': 'braja_sampoerna_api_app'
-        },
     }
 }
 
@@ -139,10 +143,45 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'account_app.User'
+
+
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=2),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1), 
+
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,  # Ensure this is set to True
+
+}
+
+
+REST_FRAMEWORK = {
+    "NON_FIELD_ERRORS_KEY": "errors",
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'account.authenticationhandling.CustomTokenAuthentication',
+    ),
+
+    # set only json without html or css
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FormParser',
+    ],
+
+
+}

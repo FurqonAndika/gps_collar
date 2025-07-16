@@ -9,8 +9,8 @@ def send_message(message_text):
     config = configparser.ConfigParser()
     config.read(config_path)
         
-    TELEGRAM_TOKEN = config['TELEGRAM']['telegram_token']
-    CHAT_ID = config['TELEGRAM']['chat_id']
+    TELEGRAM_TOKEN = config['TELEGRAM']['telegram_token'].strip('"')
+    CHAT_ID = config['TELEGRAM']['chat_id'].strip('"')
 
     url = f'https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage'
     data = {
@@ -19,8 +19,13 @@ def send_message(message_text):
     }
 
     try:
-        response = requests.post(url, data=data)
+        req = requests.Session()
+        response = req.post(url, data=data)
         if response.status_code != 200:
             print(f"❌ Gagal kirim Telegram: {response.status_code}, {response.text}")
     except Exception as e:
         print("❌ Exception saat kirim Telegram:", e)
+
+
+if __name__ == "__main__":
+    send_message("hello")

@@ -5,7 +5,8 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
-from .models import User
+from .models import User,Instancy
+from phonenumber_field.formfields import PhoneNumberField
 
 class CustomUserChangeForm(UserChangeForm):
     class Meta(UserChangeForm.Meta):
@@ -37,3 +38,4 @@ class CustomUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+

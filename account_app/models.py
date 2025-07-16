@@ -7,6 +7,7 @@ import uuid
 from django.utils import timezone
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from phonenumber_field.modelfields import PhoneNumberField
 
 # Create your models here.
 class CustomUserManager(BaseUserManager):
@@ -33,6 +34,7 @@ class CustomUserManager(BaseUserManager):
 class Instancy(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     balai_name = models.CharField(max_length=50)
+    pic_name = models.CharField(max_length=20, blank=True, null=True)
 
     def __str__(self):
         return self.balai_name
@@ -44,13 +46,13 @@ class User(AbstractUser,PermissionsMixin):
     SUPERADMIN = 1
     ADMIN = 2
     GUEST = 3
-    QA = 4
+
 
     ROLE_CHOICES = (
         (SUPERADMIN, 'SuperAdmin'),
         (ADMIN, 'Admin'),
         (GUEST, 'Guest'),
-        (QA, 'QA')
+
     )
 
     instancy =models.ForeignKey(Instancy, on_delete=models.CASCADE, blank=True, null=True)

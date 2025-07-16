@@ -2,9 +2,16 @@ from django.db import models
 import uuid 
 from django.contrib.auth import get_user_model
 from account_app.models import Instancy
+
+
 User = get_user_model()
 
 # Create your models here.
+
+class TelegramModel(models.Model):
+    create_at =models.DateTimeField(auto_now_add=True)
+    bot_name = models.CharField(max_length=30)
+    link = models.CharField(max_length=100)
 
 class Zoo(models.Model):
     serial_id = models.UUIDField(unique=True, editable=False, default=uuid.uuid4, verbose_name='uid')
@@ -23,7 +30,7 @@ class Zoo(models.Model):
 class SensorDataModel(models.Model):
     zoo = models.ForeignKey(Zoo, null=True, on_delete=models.SET_NULL, related_name="sensor_data")
     time = models.DateTimeField()
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     latitude = models.DecimalField(max_digits=16, decimal_places=11,null=True)  
     longitude = models.DecimalField(max_digits=16, decimal_places=11, null=True) 
     temperature = models.FloatField(null=True)
@@ -35,7 +42,7 @@ class SensorDataModel(models.Model):
 
 class RawSensorDataModel(models.Model):
     time = models.DateTimeField()
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     topic = models.CharField(max_length=100)
     message = models.CharField(max_length=255)
     class Meta:
@@ -53,3 +60,6 @@ class AreaModel(models.Model):
     class Meta:
         unique_together = ('longitude',"latitude")
         db_table = 'collar_area'
+
+
+

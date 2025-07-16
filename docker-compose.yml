@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  web:
+    build: .
+    container_name: gps_collar_web
+    volumes:
+      - .:/app
+    ports:
+      - "8010:8010"
+    environment:
+      - DJANGO_SETTINGS_MODULE=gps_collar_project.settings
+      - DATABASE_NAME=gps_collar
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_HOST=db
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14
+    container_name: gps_collar_db
+    environment:
+      POSTGRES_DB: gps_collar
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"  # ✅ FIXED

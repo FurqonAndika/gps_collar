@@ -7,7 +7,7 @@ from .models import RawSensorDataModel, SensorDataModel, Zoo,AreaModel
 # @admin.register(Instancy)
 class SensorDataAdmin(admin.ModelAdmin):
     model = SensorDataModel
-    list_display = ["zoo__name", "longitude","latitude","time",]
+    list_display = ["zoo__name", "longitude","latitude","temperature","battery","time",]
     search_fields = ["zoo__name"]
 
 class RawSensorDataAdmin(admin.ModelAdmin):
@@ -22,7 +22,7 @@ class ZooAdmin(admin.ModelAdmin):
 
 class AreaAdmin(admin.ModelAdmin):
     model = AreaModel
-    list_display = ["place_name","longitude","latitude"]
+    list_display = ["place_name","longitude","latitude","radius_km"]
     search_fields = ["place_name"]
 
 admin.site.register(RawSensorDataModel,RawSensorDataAdmin)
