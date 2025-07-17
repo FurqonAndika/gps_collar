@@ -56,10 +56,14 @@ INSTALLED_APPS = [
 
     # 3rd party
     "rest_framework",
+    'rest_framework_simplejwt.token_blacklist',
+    'corsheaders',
 
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware", 
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -67,6 +71,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # cors
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'gps_collar_project.urls'
@@ -157,10 +164,11 @@ AUTH_USER_MODEL = 'account_app.User'
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=2),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=25),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1), 
 
     'ROTATE_REFRESH_TOKENS': False,
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'BLACKLIST_AFTER_ROTATION': True,  # Ensure this is set to True
 
 }
@@ -182,6 +190,9 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.MultiPartParser',
         'rest_framework.parsers.FormParser',
     ],
-
-
 }
+
+# CORS_ALLOW_ALL_ORIGINS = True  # atau lebih aman:
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]

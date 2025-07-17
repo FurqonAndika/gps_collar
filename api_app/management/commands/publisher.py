@@ -35,11 +35,11 @@ class Command(BaseCommand):
 
         try:
             while True:
-                satelit_id = "007"
+                satelit_id = "1234567890"
 
                 # sekitaran pekanbaru                  
-                lon = round(random.uniform(0.55, 0.63), 8)
-                lat = round(random.uniform(101.40, 101.47), 8)
+                lat = round(random.uniform(0.55, 0.63), 8)
+                lon = round(random.uniform(101.40, 101.47), 8)
                 temperature = round(random.uniform(25, 40), 1)
                 battery = random.randint(10, 100)
 
@@ -47,7 +47,20 @@ class Command(BaseCommand):
                 self.stdout.write(f"📤 Publishing: {message}")
                 client.publish(mqtt_topic, message)
 
-                time.sleep(0.3)
+
+                satelit_id = "0987654321"
+
+                # sekitaran pekanbaru                  
+                lat = round(random.uniform(0.55, 0.63), 8)
+                lon = round(random.uniform(101.40, 101.47), 8)
+                temperature = round(random.uniform(25, 40), 1)
+                battery = random.randint(10, 100)
+
+                message = f"{satelit_id},{lon},{lat},{temperature},{battery}"
+                self.stdout.write(f"📤 Publishing: {message}")
+                client.publish(mqtt_topic, message)
+
+                time.sleep(60)
 
         except KeyboardInterrupt:
             self.stdout.write("❌ Simulator dihentikan.")
