@@ -11,14 +11,14 @@ class SensorDataModelSerializer(serializers.ModelSerializer):
     def get_data_sensor(self, obj):
         return [
             {
-                "sensor_name": "temperature",
-                "value": obj.temperature,
-                "notation": "Celcius"
+                "sensor_name": "distance_from_gateway",
+                "value": obj.distance_from_gateway,
+                "notation": "km"
             },
             {
-                "sensor_name": "battery",
-                "value": obj.battery,
-                "notation": "Volt"
+                "sensor_name": "rssi",
+                "value": obj.rssi,
+                "notation": "db"
             }
         ]
 class ZooDashboardSerializer(serializers.ModelSerializer):
@@ -26,9 +26,10 @@ class ZooDashboardSerializer(serializers.ModelSerializer):
     instancy = serializers.CharField(source='instancy.balai_name', read_only=True)
     image = serializers.SerializerMethodField()
 
+
     class Meta:
         model = Zoo
-        fields = ['serial_id', 'name', 'satelit_serial', 'image', 'instancy', 'last_sensor_data']
+        fields = ['serial_id', 'name', 'node_serial', 'image', 'instancy', 'last_sensor_data']
 
     def get_last_sensor_data(self, obj):
         latest_data = obj.sensor_data.order_by('-time').first()
@@ -52,14 +53,14 @@ class Sensor24HourSerializer(serializers.ModelSerializer):
     def get_data_sensor(self, obj):
         return [
             {
-                "sensor_name": "temperature",
-                "value": obj.temperature,
-                "notation": "Celcius"
+                "sensor_name": "rssi",
+                "value": obj.rssi,
+                "notation": "db"
             },
             {
-                "sensor_name": "battery",
-                "value": obj.battery,
-                "notation": "Volt"
+                "sensor_name": "distance_from_gateway",
+                "value": obj.distance_from_gateway,
+                "notation": "km"
             }
         ]
 
@@ -76,7 +77,7 @@ class ZooSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Zoo
-        fields = ['id', 'serial_id', 'name', 'satelit_serial', 'created_at', 'image',
+        fields = ['id', 'serial_id', 'name', 'node_serial', 'created_at', 'image',
                   'created_by', 'instancy']
 
     def get_created_by(self, obj):

@@ -1,10 +1,10 @@
 from django.core.management.base import BaseCommand
 import configparser,os
 import paho.mqtt.client as mqtt
-from api_app.models import RawSensorDataModel,SensorDataModel, Zoo, AreaModel
+from api_app.models import RawSensorDataModel,SensorDataModel, Zoo, AreaModel, GatewayModel
 from django.utils.timezone import now
 import uuid
-from .geofence import is_inside_geofence
+from .geofence import is_inside_geofence, calculate_distance
 from .gps_bot_telegram import send_message
 import time
 
@@ -54,33 +54,42 @@ class Command(BaseCommand):
                     print(" Format tidak sesuai (harus 5 elemen):", message)
                     return
 
-                satelit_id, lon, lat, temperature, battery = parts
+                node_serial, lon, lat, rssi, gateway_serial = parts
 
                 # Konversi nilai ke tipe data yang sesuai
                 lon = float(lon)
                 lat = float(lat)
-                temperature = float(temperature)
-                battery = float(battery)
+                rssi = float(rssi)
+                gateway_serial = int(gateway_serial)
+                distance_from_gateway=None
 
-                # Cari Zoo berdasarkan satelit_serial
+                # Cari Zoo berdasarkan node_serial
                 try:
-                    zoo = Zoo.objects.get(satelit_serial=satelit_id)
+                    zoo = Zoo.objects.get(node_serial=node_serial)
                 except Zoo.DoesNotExist:
-                    print(f" Zoo dengan satelit_serial '{satelit_id}' tidak ditemukan.")
+                    print(f" Zoo dengan node_serial '{node_serial}' tidak ditemukan.")
                     zoo = None  # Tetap simpan meski tanpa relasi
 
-                # Simpan ke SensorDataModel
+                try:
+                    gateway = GatewayModel.objects.get(gateway_serial=gateway_serial)
+                    distance_from_gateway = calculate_distance(lat,lon, float(gateway.latitude),float(gateway.longitude))
+                    print("distance_from_gateway :", distance_from_gateway)
+                except Exception as e:
+                    print(e)
+                    gateway = None  # Tetap simpan meski tanpa relasi
                 
+                # Simpan ke SensorDataModel
                 data = SensorDataModel.objects.create(
                     zoo=zoo,
                     time=waktu,
                     created_at=waktu,
                     latitude=lat,
                     longitude=lon,
-                    temperature=temperature,
-                    battery=battery
+                    rssi=rssi,
+                    gateway=gateway,
+                    distance_from_gateway= distance_from_gateway
                 )
-                print("✔️ Data Sensor berhasil disimpan.")
+                # print("✔️ Data Sensor berhasil disimpan.")
                 
                 detected_areas = []
 
@@ -108,12 +117,12 @@ class Command(BaseCommand):
                         f"🦣 Gajah {zoo.name} terdeteksi MASUK ke area berikut:\n"
                         f"{area_list}\n\n"
                         f"📍 Lokasi: [{lon:.6f}, {lat:.6f}](https://www.google.com/maps?q={lon:.6f},{lat:.6f})\n"
-                        f"🌡️ Suhu: {temperature}°C, 🔋 Baterai: {battery}%"
+                        # f"🌡️ sinyal: {rssi}db, 🔋 jarak dari Gateway: {distance}%"
                     )
-                    print(telegram_message)
+                    # print(telegram_message)
                     start = time.time()
-                    # send_message(telegram_message)
-                    print("time is:", time.time()-start)
+                    send_message(telegram_message)
+                    print(time.time()-start)
                 else:
                     print(f"📍 Gajah {zoo.name} tidak berada di dalam geofence mana pun.")
         

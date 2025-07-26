@@ -164,7 +164,7 @@ AUTH_USER_MODEL = 'account_app.User'
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=25),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1), 
 
     'ROTATE_REFRESH_TOKENS': False,
@@ -192,7 +192,13 @@ REST_FRAMEWORK = {
     ],
 }
 
-# CORS_ALLOW_ALL_ORIGINS = True  # atau lebih aman:
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
+CORS_ALLOW_ALL_ORIGINS = True  # atau lebih aman:
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+# ]
+ALLOWED_HOSTS = ["*"]
+
+# CSRF_TRUSTED_ORIGINS = [
+#     "http://172.16.13.10:3000",
+#     "http://localhost:3000"
+# ]

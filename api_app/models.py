@@ -16,16 +16,31 @@ class TelegramModel(models.Model):
 class Zoo(models.Model):
     serial_id = models.UUIDField(unique=True, editable=False, default=uuid.uuid4, verbose_name='uid')
     name = models.CharField(max_length=100)
-    satelit_serial = models.CharField(max_length=100, unique=True)
+    node_serial = models.CharField(max_length=100, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL,related_name="zoo_model",blank=True,null=True)
     image = models.ImageField(null=True, blank=True, upload_to='zoo')
     instancy = models.ForeignKey(Instancy, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
-        return self.name+"|"+self.satelit_serial
+        return self.name+"|"+self.node_serial
     class Meta:
         db_table = 'collar_zoo'
+
+class GatewayModel(models.Model):
+    location = models.CharField(max_length=100)
+    serial_id = models.UUIDField(unique=True, editable=False, default=uuid.uuid4, verbose_name='uid')
+    latitude = models.DecimalField(max_digits=16, decimal_places=11,null=True)  
+    longitude = models.DecimalField(max_digits=16, decimal_places=11, null=True) 
+    gateway_serial = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL,related_name="gateway_model",blank=True,null=True)
+    instancy = models.ForeignKey(Instancy, on_delete=models.CASCADE, blank=True, null=True)
+
+    def __str__(self):
+        return self.gateway_serial
+    class Meta:
+        db_table = 'collar_gateway'
     
 class SensorDataModel(models.Model):
     zoo = models.ForeignKey(Zoo, null=True, on_delete=models.SET_NULL, related_name="sensor_data")
@@ -33,9 +48,9 @@ class SensorDataModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     latitude = models.DecimalField(max_digits=16, decimal_places=11,null=True)  
     longitude = models.DecimalField(max_digits=16, decimal_places=11, null=True) 
-    temperature = models.FloatField(null=True)
-    battery = models.FloatField(null=True)
-    
+    rssi = models.FloatField(null=True)
+    distance_from_gateway = models.FloatField(null=True)
+    gateway = models.ForeignKey(GatewayModel,on_delete=models.CASCADE, blank=True, null=True)
     class Meta:
         unique_together = ('zoo', 'time')
         db_table = 'collar_sensor_data'

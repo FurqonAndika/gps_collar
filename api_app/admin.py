@@ -1,13 +1,13 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import RawSensorDataModel, SensorDataModel, Zoo,AreaModel, TelegramModel
+from .models import RawSensorDataModel, SensorDataModel, Zoo,AreaModel, TelegramModel, GatewayModel
 
 
 # @admin.register(Instancy)
 class SensorDataAdmin(admin.ModelAdmin):
     model = SensorDataModel
-    list_display = ["zoo__name", "longitude","latitude","temperature","battery","time",]
+    list_display = ["zoo__name", "longitude","latitude","rssi","distance_from_gateway","time","gateway__location"]
     search_fields = ["zoo__name"]
 
 class RawSensorDataAdmin(admin.ModelAdmin):
@@ -17,8 +17,13 @@ class RawSensorDataAdmin(admin.ModelAdmin):
 
 class ZooAdmin(admin.ModelAdmin):
     model = Zoo
-    list_display = ["id","name","instancy__balai_name","satelit_serial"]
+    list_display = ["id","name","instancy__balai_name","node_serial"]
     search_fields = ["name"]
+
+class GatewayAdmin(admin.ModelAdmin):
+    model = GatewayModel
+    list_display = ["id","location","instancy__balai_name","gateway_serial"]
+    search_fields = ["gateway_serial"]
 
 class AreaAdmin(admin.ModelAdmin):
     model = AreaModel
@@ -35,3 +40,4 @@ admin.site.register(SensorDataModel,SensorDataAdmin)
 admin.site.register(Zoo,ZooAdmin)
 admin.site.register(AreaModel,AreaAdmin)
 admin.site.register(TelegramModel, TelegramAdmin)
+admin.site.register(GatewayModel, GatewayAdmin)
